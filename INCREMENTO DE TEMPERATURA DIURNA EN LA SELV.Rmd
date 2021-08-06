@@ -1,0 +1,120 @@
+---
+title: "INCREMENTO DE TEMPERATURA DIURNA EN LA SELVA"
+author: "Gorky Florez Castillo"
+date: "5/8/2021"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    theme: cerulean
+---
+```{r setup, include=FALSE}
+require(pacman)
+pacman::p_load(png,broom,tidyverse,leaflet, leaflet.extras, leaflet.providers,leafem,htmlwidgets, sp,
+               sf,readxl,mapview,RColorBrewer,viridis,Rgb,ggplot2,raster,rmarkdown,flexdashboard,
+               crosstalk, DT,dplyr,htmltools,rgdal, broom,leafem,mapview, Rgb, raster,rmarkdown, 
+               mapedit, tibble, cptcity)
+
+Peru_n          <- getData('GADM', country='Peru', level=3) %>% st_as_sf()       # Extracion del paiz
+Peru            <- getData('GADM', country='Peru', level=1) %>% st_as_sf()       # Extracion del paiz
+MDD             <- Peru_n %>%  filter(NAME_1 == "Madre de Dios")  
+MDD_t           <- Peru   %>%  filter(NAME_1 == "Madre de Dios")  
+data_07         <- st_read ("SHP/Aviso_07-08/view_aviso.shp")
+data_07_Ama     <- subset(data_07, nivel  == "Nivel 2")
+Aviso_07_MD     <- st_intersection(data_07, MDD_t )
+Aviso_07_MDD    <- subset(Aviso_07_MD, nivel  == "Nivel 2")
+
+data_08         <- st_read ("SHP/Aviso_07-08/view_aviso(1).shp")
+data_08_Ama     <- subset(data_08, nivel  == "Nivel 2")
+Aviso_08_MD     <- st_intersection(data_08, MDD_t )
+Aviso_08_MDD    <- subset(Aviso_08_MD, nivel  == "Nivel 2")
+
+
+#Definiendo el Logo
+m="https://images.vexels.com/media/users/3/143561/isolated/preview/afa3aa927b63061e3b0222b7dab9cdbf-ubicaci--n-n--utica-norte-flecha-vintage-by-vexels.png"
+Sena = "https://github.com/GorkyFlorez/Logo_identidades/blob/main/senamhi.png"
+```
+
+
+Aviso Meteorológico aumento de temperatura en RStudio
+===================================== 
+
+Column {data-width=550}
+-----------------------------------------------------------------------
+
+### Mapa Aviso Meteorológico Agosto 07
+
+```{r}
+leaflet() %>%
+  addControl(html = "<p><strong><em>INCREMENTO DE TEMPERATURA DIURNA EN LA SELVA (SENAMHI)</em></strong></p>",
+             position = "topright")%>%
+  addLogo(m,url = "https://images.vexels.com/media/users/3/143561/isolated/preview/afa3aa927b63061e3b0222b7dab9cdbf-ubicaci--n-n--utica-norte-flecha-vintage-by-vexels.png",
+          position = "topleft",
+          offset.x = 50,
+          offset.y = 10,
+          width = 100,
+          height = 100)%>%
+  addPolygons(data= MDD,
+              color = "#444444",
+              fillOpacity = 0.001,
+              group = "Madre de Dios")%>%
+  addScaleBar(position = "bottomright",options = scaleBarOptions(maxWidth = 100,
+                                                                 metric = TRUE,
+                                                                 imperial = TRUE,
+                                                                 updateWhenIdle = TRUE))%>%
+  addLegend(position = "bottomleft", colors="gold", labels = "Aumento de temperatura MADRE DE DIOS", opacity = 1)%>%
+  addLayersControl(baseGroups = c("OSM","Satellite"),
+                   overlayGroups = c("Madre de Dios","Aviso agosto 07"),
+                   position = "topright",
+                   options = layersControlOptions(collapsed = T))%>%
+  addProviderTiles(providers$OpenStreetMap, group = "OSM")%>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite")%>%
+  addPolygons(data= Aviso_07_MDD,
+            color = "gold",
+            weight = 2,
+            fillOpacity = 0.8,
+            fillColor = "gold",
+            group = "Aviso agosto 07")%>%
+  addMiniMap(tiles = providers$Esri.WorldImagery,toggleDisplay = TRUE)
+```
+
+Column {data-width=450}
+-----------------------------------------------------------------------
+### Mapa Aviso Meteorológico Agosto 08
+
+```{r map}
+leaflet() %>%
+  addControl(html = "<p><strong><em>INCREMENTO DE TEMPERATURA DIURNA EN LA SELVA (SENAMHI)</em></strong></p>",
+             position = "topright")%>%
+  addLogo(m,url = "https://images.vexels.com/media/users/3/143561/isolated/preview/afa3aa927b63061e3b0222b7dab9cdbf-ubicaci--n-n--utica-norte-flecha-vintage-by-vexels.png",
+          position = "topleft",
+          offset.x = 50,
+          offset.y = 10,
+          width = 100,
+          height = 100)%>%
+  addPolygons(data= MDD,
+              color = "#444444",
+              fillOpacity = 0.001,
+              group = "Madre de Dios")%>%
+  addScaleBar(position = "bottomright",options = scaleBarOptions(maxWidth = 100,
+                                                                 metric = TRUE,
+                                                                 imperial = TRUE,
+                                                                 updateWhenIdle = TRUE))%>%
+  addLegend(position = "bottomleft", colors="gold", labels = "Aumento de temperatura MADRE DE DIOS", opacity = 1)%>%
+  addLayersControl(baseGroups = c("OSM","Satellite"),
+                   overlayGroups = c("Madre de Dios","Aviso agosto 08"),
+                   position = "topright",
+                   options = layersControlOptions(collapsed = T))%>%
+  addProviderTiles(providers$OpenStreetMap, group = "OSM")%>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite")%>%
+  addPolygons(data= Aviso_08_MDD,
+            color = "gold",
+            weight = 2,
+            fillOpacity = 0.8,
+            fillColor = "gold",
+            group = "Aviso agosto 08")%>%
+  addMiniMap(tiles = providers$Esri.WorldImagery,toggleDisplay = TRUE)
+```
+
+
+
